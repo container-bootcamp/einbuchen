@@ -1,0 +1,14 @@
+main {
+    display: inline-block;
+    max-width: 600px;
+    width: 100%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form input {
+    display: block;
+}

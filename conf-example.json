@@ -1,0 +1,7 @@
+{
+  "mongoes": {
+    "mongouri": "mongodb://localhost:27017/einbuchen"
+  },
+  "bind-interface": "0.0.0.0",
+  "bind-port": "8090"
+}

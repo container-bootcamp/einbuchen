@@ -1,0 +1,198 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: einbuchen-config
+  namespace: bibliothek
+data:
+  MONGO_SERVER: "mongo.infrastruktur"
+  INTERFACE: "0.0.0.0"
+  PORT: "80"
+
+---
+
+## Für das externe HTTP inclusive SSI
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: einbuchen-extern
+  namespace: bibliothek
+spec:
+  ports:
+  - port: 8080
+    name: web
+  selector:
+    app: einbuchen
+    role: backend
+    scs: einbuchen
+
+---
+
+## Für das interne SSE Interface
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: einbuchen-intern
+  namespace: bibliothek
+spec:
+  ports:
+  - port: 80
+    name: web
+  selector:
+    app: einbuchen
+    role: backend
+    scs: einbuchen
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: einbuchen
+  namespace: bibliothek
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: einbuchen
+      role: backend
+      scs: einbuchen
+  template:
+    metadata:
+      labels:
+        app: einbuchen
+        role: backend
+        scs: einbuchen
+    spec:
+      initContainers:
+      - name: config-creator
+        image: busybox
+        envFrom:
+        - configMapRef:
+            name: einbuchen-config
+        command: ['/bin/sh', '-c', 'echo {\"mongoes\": {\"mongouri\": \"mongodb://$MONGO_SERVER:27017/einbuchen\"},\"bind-interface\": \"$INTERFACE\",\"bind-port\": \"$PORT\"} > /config/config.json']
+        volumeMounts:
+         - name: config-volume
+           mountPath: /config
+      containers:
+      - name: varnish-ssi
+        image: quay.io/containerbootcamp/alpine-varnish
+      - name: einbuchen
+        image: quay.io/containerbootcamp/einbuchen
+        command:
+        - /einbuchen 
+        - -conf 
+        - /etc/config/config.json
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+      - name: jaeger-agent
+        image: jaegertracing/jaeger-agent
+        command:
+        - "/go/bin/agent-linux"
+        - "--collector.host-port=jaeger-collector.tracing:14267"
+      volumes:
+        - name: config-volume
+          emptyDir: {}
+
+---
+
+#####
+# ingress to assets, test f.e. with
+# curl http://bootcamp.ch.innoq.io/einbuchen/books
+#####
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/auth-type: basic
+    ingress.kubernetes.io/auth-secret: basic-auth
+    ingress.kubernetes.io/auth-realm: "Authentication Required"
+  name: einbuchen
+  namespace: bibliothek
+spec:
+  rules:
+  - host: bootcamp.ch.innoq.io
+    http:
+      paths:
+      - path: /einbuchen
+        backend:
+          serviceName: einbuchen-extern
+          servicePort: 8080
+
+---
+
+#########################################
+## Simple Mongo HTTP Service using Crest
+#########################################
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: einbuchen-crest
+  namespace: bibliothek
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: einbuchen-crest
+      role: backend
+      scs: einbuchen
+  template:
+    metadata:
+      labels:
+        app: einbuchen-crest
+        role: backend
+        scs: einbuchen
+    spec:
+      initContainers:
+      - name: config-creator
+        image: busybox
+        envFrom:
+        - configMapRef:
+            name: einbuchen-config
+        command: ['/bin/sh', '-c', 'echo {\"db\": {\"port\": 27017,\"host\": \"$MONGO_SERVER\"},\"server\": {\"port\": 3500,\"address\": \"0.0.0.0\"},\"flavor\": \"mongodb\",\"debug\": true} > /config/config.json']
+        volumeMounts:
+         - name: config-volume
+           mountPath: /config
+      containers:
+      - name: crest
+        image: quay.io/containerbootcamp/crest
+        ports:
+        - containerPort: 3500
+          protocol: TCP
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+      - name: jaeger-agent
+        image: jaegertracing/jaeger-agent
+        command:
+        - "/go/bin/agent-linux"
+        - "--collector.host-port=jaeger-collector.tracing:14267"
+      volumes:
+        - name: config-volume
+          emptyDir: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: einbuchen-crest
+  namespace: bibliothek
+spec:
+  ports:
+  - port: 3500
+    name: web
+  selector:
+    app: einbuchen-crest
+    role: backend
+    scs: einbuchen
