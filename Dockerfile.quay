@@ -1,0 +1,17 @@
+FROM golang:1.9 AS build
+
+ENV VERSION latest
+RUN go get -u github.com/golang/dep/cmd/dep
+COPY . /go/src/gitlab.innoq.com/container-bootcamp-demo/einbuchen/
+WORKDIR /go/src/gitlab.innoq.com/container-bootcamp-demo/einbuchen/
+RUN dep ensure
+RUN	GOARCH=amd64 CGO_ENABLED=0 go install \
+    -installsuffix 'static' \
+    -ldflags '-X $(PKG)/pkg/version.VERSION=$(VERSION)' \
+    ./...
+
+FROM scratch
+WORKDIR /
+COPY --from=build /go/bin/einbuchen /einbuchen
+ADD resources/ /resources/
+ENTRYPOINT ["/einbuchen"]
