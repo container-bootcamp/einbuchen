@@ -3,9 +3,10 @@ package main
 import (
 	"net/http"
 
+	"github.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/view"
 	"github.com/gorilla/mux"
 	opentracing "github.com/opentracing/opentracing-go"
-	"gitlab.innoq.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/view"
+	"github.com/opentracing/opentracing-go/ext"
 )
 
 var templates = view.HtmlTmpl()
@@ -37,7 +38,14 @@ func OneBookHandlerfunc(getBook func(opentracing.Span, string) (*Buch, error)) f
 
 	return func(res http.ResponseWriter, req *http.Request) {
 
-		span := opentracing.StartSpan("one_book_handler")
+		var span opentracing.Span
+
+		wireContext, _ := opentracing.GlobalTracer().Extract(
+			opentracing.HTTPHeaders,
+			opentracing.HTTPHeadersCarrier(req.Header))
+
+		span = opentracing.StartSpan("one_book_handler", ext.RPCServerOption(wireContext))
+
 		span.SetTag("param.eventid", mux.Vars(req)["eventid"])
 		defer span.Finish()
 

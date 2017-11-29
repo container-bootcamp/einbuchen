@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/container-bootcamp-demo/einbuchen/pkg/log"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go/config"
 	"github.com/uber/jaeger-client-go/rpcmetrics"
 	"github.com/uber/jaeger-lib/metrics"
-	"gitlab.innoq.com/container-bootcamp-demo/einbuchen/pkg/log"
 	"go.uber.org/zap"
 )
 

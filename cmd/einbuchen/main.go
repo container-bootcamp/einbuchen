@@ -8,18 +8,18 @@ import (
 	"net/http"
 	"os"
 
+	thislog "github.com/container-bootcamp-demo/einbuchen/pkg/log"
+	"github.com/container-bootcamp-demo/einbuchen/pkg/tracing"
 	"github.com/gorilla/mux"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/satori/go.uuid"
 	"github.com/uber/jaeger-lib/metrics/go-kit"
 	"github.com/uber/jaeger-lib/metrics/go-kit/expvar"
-	thislog "gitlab.innoq.com/container-bootcamp-demo/einbuchen/pkg/log"
-	"gitlab.innoq.com/container-bootcamp-demo/einbuchen/pkg/tracing"
 	"go.uber.org/zap"
 
 	"flag"
 
-	"gitlab.innoq.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/eventstore"
+	"github.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/eventstore"
 )
 
 type Config struct {

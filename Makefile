@@ -7,7 +7,7 @@ ALL_ARCH ?= amd64
 
 # This repo's root import path (under GOPATH).
 # PKG ?= $(shell realpath --relative-to=${GOPATH}/src `pwd`)
-PKG ?= gitlab.innoq.com/container-bootcamp-demo/einbuchen
+PKG ?= github.com/container-bootcamp-demo/einbuchen
 
 VERSION ?= "latest"
 
