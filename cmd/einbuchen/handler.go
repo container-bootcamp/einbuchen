@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/view"
+	"github.com/container-bootcamp/einbuchen/cmd/einbuchen/view"
 	"github.com/gorilla/mux"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"

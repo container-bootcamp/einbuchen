@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"os"
 
-	thislog "github.com/container-bootcamp-demo/einbuchen/pkg/log"
-	"github.com/container-bootcamp-demo/einbuchen/pkg/tracing"
+	thislog "github.com/container-bootcamp/einbuchen/pkg/log"
+	"github.com/container-bootcamp/einbuchen/pkg/tracing"
 	"github.com/gorilla/mux"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/satori/go.uuid"
@@ -19,7 +19,7 @@ import (
 
 	"flag"
 
-	"github.com/container-bootcamp-demo/einbuchen/cmd/einbuchen/eventstore"
+	"github.com/container-bootcamp/einbuchen/cmd/einbuchen/eventstore"
 )
 
 type Config struct {
