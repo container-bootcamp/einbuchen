@@ -7,9 +7,10 @@ ALL_ARCH ?= amd64
 
 # This repo's root import path (under GOPATH).
 # PKG ?= $(shell realpath --relative-to=${GOPATH}/src `pwd`)
-PKG ?= github.com/container-bootcamp-demo/einbuchen
+PKG ?= github.com/container-bootcamp/einbuchen
 
 VERSION ?= "latest"
+GO_DEPS_VERSION ?= "13-12-2017"
 
 all-image: $(addprefix image-, $(ALL_ARCH))
 
@@ -25,6 +26,10 @@ Dockerfile-%: Dockerfile.in
 		-e 's|ARG_PKG|$(PKG)|g' \
 		-e 's|ARG_ARCH|$(ARCH)|g' \
 		Dockerfile.in > $@
+
+dep-container:
+	docker build -t quay.io/containerbootcamp/$(BIN)-go-deps:$(GO_DEPS_VERSION) -f Dockerfile.go-deps .
+	docker push quay.io/containerbootcamp/$(BIN)-go-deps:$(GO_DEPS_VERSION)
 
 ## dev stuff
 Gopkg.toml:

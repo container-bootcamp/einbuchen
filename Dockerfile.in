@@ -1,15 +1,15 @@
-FROM golang:1.9 AS build
+FROM quay.io/containerbootcamp/einbuchen-go-deps:"13-12-2017" AS build
 
-RUN go get -u github.com/golang/dep/cmd/dep
 COPY . /go/src/ARG_PKG/
 WORKDIR /go/src/ARG_PKG/
-RUN dep ensure
+RUN dep ensure && dep prune
 RUN	GOARCH=ARG_ARCH CGO_ENABLED=0 go install \
     -installsuffix 'static' \
     -ldflags '-X $(PKG)/pkg/version.VERSION=$(VERSION)' \
     ./...
 
 FROM scratch
+
 WORKDIR /
 COPY --from=build /go/bin/ARG_BIN /ARG_BIN
 ADD resources/ /resources/
