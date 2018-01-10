@@ -66,13 +66,19 @@ const einbuchenFormTmpl = `
             <h4 class="card-title">{{.Titel}}</h4>
             <h6 class="card-subtitle mb-2 text-muted">{{.Autor}}</h6>
             <p class="card-text">{{.KurzBeschreibung}}</p>
+            ISBN: <span class="badge badge-info">{{.Isbn}}</span>
             <div>
                 <iq-embedded-link data-target="main">
                     <a href="/ausleihen/book/{{.Isbn}}/lent">Status Verfügbarkeit</a>
                 </iq-embedded-link>
+                <a href="/ausleihen/book/{{.Isbn}}" class="btn btn-primary">Ausleihen</a>
             </div>
-            ISBN: <span class="badge badge-info">{{.Isbn}}</span>
-            <a href="/ausleihen/book/{{.Isbn}}" class="btn btn-primary">Ausleihen</a>
+            <div>
+                <iq-embedded-link data-target="main">
+                    <a href="/reservieren/book/{{.Isbn}}/reserve">Status Reservieren</a>
+                </iq-embedded-link>
+                <a href="/reservieren/book/{{.Isbn}}" class="btn btn-primary">Reservieren</a>
+            </div>
         </div>
     </div>
 </main>
